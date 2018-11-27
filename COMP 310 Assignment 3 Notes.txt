@@ -1,0 +1,125 @@
+SRCon 89
+
+COMP 310 Assignmnet 3 Notes:
+
+SIDE NOTE:
+- OS playground in cs310.cs.mcgill.ca
+
+APPENDIX:
+- Docker image available to spawn RS Container
+	- Image will give a complete (container) environmet within which we can work
+	- We have root (priveleged) access inside the container
+	- Name of image: smean_image_comp310
+	- Creating an instance of a container: docker run --priveleged -d --rm --name=<MEANINGFUL_NAME> smean_image_comp310
+	- Enter the container: docker exec -it <MEANINGFUL_NAME> /bin/bash
+- Useful Commands:
+	- htop -u <SOCS_USERNAME>	List processes run by you
+	- kill -9 <PID>				Kill a process
+
+
+
+OVERVIEW:
+- Expected to develop an SRContainer that runs in Linus
+- Modelled after the Docker container format
+- Implemented using advanced features supported by linux:
+	- namespaces
+	- control groups
+	- system call filtering
+	- capability management
+- A container is a virtual machine look alike
+	- It does whan we expect from a machine from an applicatons point-of-view
+- Containers are created using the clone() system call
+- A container is simply a process spawned within the host with proper isolation (using clone() flags)
+- The contain has its own resources or partitions of available resources
+- It has its own file system, network configuration, memory, and CPU slices (do not share the kernel instance running in the host)
+- Container = Processes + Isolation + File System Image + Resource Principal + Host Kernel
+
+
+
+EXPLORING NAMESPACES:
+- Processes are built on the idea of address spaces - each process has its own address space that prevens a process from interfering with another process
+- The /proc interface allows you to see the current kernel state and even control it
+- The folder /self points to the process of the shell that is using to explore the /proc interface
+- The /ns folder allows you to look at namespace information
+- Print out the process tree using the following command: pstree -g -s
+	- Process tree showa all the processes running in the host
+	- This would include even the processes that are inside containers (they are also running on the host)
+- unshare - allows you to run processes/programs a namespaces disassociated to the parent namespace
+	- -p puts the process/program in its own PID namespace
+	- -U puts the process/program in its own USER namespace
+	- -u puts the process/program in its own UTS namespace
+	- -f tells unshare to run the programs as a sub-process via fork
+	- This command allowes you to start isolated process groups (process heirarchies)
+- Processes that were put into their own namespaces with "unshare" are essentially containers
+	- You can run multiple processses inside this new namespace, which is basically processes running inside the container
+- Namespaces provide the building blocks from containers
+- The PID namespace:
+	- The general idea of PID namespace is to reuse the same PID values in different namespaces
+	- Once the process PID-1 inside a namespace (container) dies, the conter ceases to exist
+	- The user in the program in the new namespace is "root"
+			- There is an escalation of priveleges
+			- This is becasue unshare is executed as an admin (run using sudo)
+- The USER namespace:
+	- The objective of USER namespace is similar to objectve of the PID namespace
+		- We want to have the same userID and group ID values in different namespaces
+	- The user in the program in the new namespace is "nobody"
+		- Priveleges are stripped
+- The UTS namespaces:
+	- Provide isolation of two system identifiers: then hostname and the NIS domain name
+
+
+
+EXPLORING CHROOT:
+- In the previous sectuon we were putting shell processes into different namespaces - providing a vm illusion
+- The shells were reusing the same file system as the underlying host
+	- We could se the files of the host from within the container/namespace
+- We now want to isolate the file system to provide its own file system
+	- To do this we need a root file system
+- Options for creating a root file system:
+	- debootstrap - create a rootfs folder:
+		- Command options:
+			- debootstrap jessie jrootfs: gets a minimalistic file-system from Debian-jessie
+			- debootstrap stretch srootfs: gets a minimalistic file-system from Debian-stretch
+		- (Assuming we want Debain Jessie) The above options allow you to create a file system at rootfs/jrootfs
+		- cd jrootfs; sudo unshare -fpu --mount-proc=/proc /bin/bash; chroot .;
+			- Creates a file system that is isolated from the host
+			- Provides different files, binaries, libraries, configs, etc. - illusion of a root file system
+		- mount -t proc proc /proc
+			- mounts the proc file system to allow for process related commands such as ps and top to work
+	- Download a roto filesystem from a repo
+		- Alpine Linux root file system URL:
+		  http://dl-cdn.alpinelinux.org/alpine/v3.8/releases/x86_64/alpine-minirootfs-3.8.1-x86_64.tar.gz
+		- Unpack the file system and use it just like the debootstrap
+- In changing the root you loose association with the folder that handles control groups
+	- This is accessed through the /sys/fd/cgroup foler which is not accessible after chroot
+- We need to inject the control groups folder into our shell:
+	- You recursively bind the mount the /sys/fs/cgroup filder onto the root file system BEFORE YUOU LAUNCH THE SHELL
+		- mount --rbind /sys/fs/cgroup $ROOTFS/sys/fs/cgroup
+			- $ROOTFS: is the path where you root-file-system is (eg: jrootfs created above)
+			- You must create the folders "fs" and "cgroup" at "/sys" inside your container
+			- You should run the above command in the host/playground container
+	- Then you start the shell as explained above
+	- You should see the cgrup folder from your "vm" at /sys/fs/cgroup and it should be functional
+
+
+
+
+EXPLORING CONTROL GROUPS:
+- We are going to see how we can do resource monitoring and control
+- Memory Hog Example in the doc
+- Experiment 8 shows us how to restrict memory with cgroups
+	- When we run a memory hogging program inside our container, it must be killed upon reaching the limit set
+	- Any program that runs inside the container is governed by the memory controller
+	- Note: we did not associate the memory hogging program directly
+		- The program was restricted by the controller attached to the container
+- Experimemt 9 shows us how to restrict cpu usage with cgroups
+
+
+
+TESTING AND EVALUATION:
+1. Change hostname inside the container and whoe that this doesnt not affect the host's hostname
+2. Create two containers with different UID/GID mappings and explain how these mappings are understood with respect to each namespace
+3. Show cpgroup control over memory
+4. Show CPU-sharing between multiple containers
+5. Show Block-IO read restriction on a container
+6. Show Block-IO write restriction on a container

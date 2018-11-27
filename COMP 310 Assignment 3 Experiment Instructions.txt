@@ -1,0 +1,134 @@
+COMP 310 Assignment 3 Experiment Instructions
+
+
+EXPERIMENT 1 INSTRUCTIONS: Important folders
+- cd /proc: allows you to see the current kernel state
+- cd /proc/self: points to the process of the shell that you are using to explore
+	- Can confirm by looking into the cmdline information avaolable in the folder
+- cd /proc/self/ns: allows you to look at the namespace information
+
+
+EXPERIMENT 2 INSTRUCTIONS: Process tree
+- pstree -g -s - prints out the process tree
+
+
+EXPERIMENT 3: Detaching PID namespaces
+- sudo unshare -fp /bin/sh: puts the shell in its own PID namespace and runs it
+- pstree -g -s
+- sudo unshare -fp --mount-proc=/proc /bin/sh: Confines the process listing to the ones in the newly created namespace
+
+
+EXPERIMENT 4 INSTRUCTIONS: Separation of namespaces
+- Start two different bash shells using the previous command (the two shells will be in two different PID namespaces)
+- Run some arbitrary programs in the two different shells
+- Questions:
+	1. Do you see the processes that you run in one shell from the other shell?
+	2. Do you see the programs you run in the shell from the host?
+	3. Can you kill the programs that you run the shells from outside (i.e., outside the shell but in the same host)? To do this you need to have another terminal. If you are doing this experiment in a Docker container, you need to run a docker exec to get into the container because the docker container is your host.
+	4. Launch some programs in the host. Do you see those processes inside the shells?
+	(use: htop -u <SOCS_USERNAME> to list processes run by you)
+
+
+EXPERIMENT 5 INSTRUCTIONS: Detaching PID and USER namespaces
+- sudo unshare -fpU --mount-proc=/proc /bin/bash: launches a shell with a detached PID and USER namespace and runs it
+- id: checks who the uder is inseide the container/unshared-namespace
+- Questions:
+	1. run adduser (required elevated priveleges) - what happens?
+		- Should not work due to lack of priveleges
+- Open another terminal:
+	- ps axu | grep bash
+		- You will see the unshare../bin/bash command there
+		- Note down the PID of the process
+	- sudo newuidmap PID 0 0 1
+		- This will upload a mappting between root (0) in the parent namespace and child namespace
+	- sudo newgidmap PID 0 0 1
+		- This will do the above for the group
+- id
+	- User identity should be changed from nobody to root
+
+
+EXPERIMENT 6 INSTRUCTIONS: UTS Namespaces
+- sudo unshare -fpu --mount-proc=/proc /bin/bash
+- hostname xyxy: changes the hostname in the parent namespace
+- hostname: prints out the hostname
+- Repeat hostname xyxy; hostname; in the parent namespace
+- Questions:
+	1. does hostname xyxy work in the child namespace? - is the hostname in the shell changing or not?
+	2. does hostname xyxy work in th parent namespace?
+
+
+EXPERIMENT 7 INSTRUCTIONS: Isolating File Systems
+- debootstrap jessie jrootfs: gets a minimalistic file-system from Debian-jessie
+	- The above allows you to create a file system at rootfs/jrootfs that is based on Debian Jessie
+- cd jrootfs; sudo unshare -fpu --mount-proc=/proc /bin/bash; chroot .;
+	- Creates a file system that is isolated from the host
+	- Provides different files, binaries, libraries, configs, etc. - illusion of a root file system
+- mount -t proc proc /proc
+	- mounts the proc file system to allow for process related commands such as ps and top to work
+- mount --rbind /sys/fs/cgroup jrootfs/sys/fs/cgroup (in root container)
+	- $ROOTFS: is the path where you root-file-system is (eg: jrootfs created above)
+	- You must create the folders "fs" and "cgroup" at "/sys" inside your container
+	- You should run the above command in the host/playground container
+- Then you start the shell as explained above
+- You should see the cgrup folder from your "vm" at /sys/fs/cgroup and it should be functional
+
+
+EXPERIMENT 8: Memory Restriction using Control Groups:
+- We want to restrict the SRContainer instance to kill an application if the application is consuming too much memory
+- sudo unshare -fpu --mount-proc=/proc /bin/bash
+- Make executable from memory hogging code in the doc
+- cd /sys/fs/cgroup
+- cd memory
+- mkdir ExMemLimiter
+- cd ExMemLimiter
+- echo <integer> > memory.limit_in_bytes: sets a memory limit to <integer> bytes
+- echo 0 > tasks: writes the PID of our container to teh file called tasks in /sys/fs/cgroup/memory/ExMemLimiter
+
+
+EXPERIMENT 9 INSTRUCTIONS: CPU Usage Restruction using Control Groups:
+- We want to restrict the CPU usage per cntainer
+- cd /sys/fs/cgroup
+- cd cpu
+- mkdir CPULimiter
+- cd CPULimiter
+- echo <integer> > cpu.shares: sets a limit on the ratio of CPU-percentage being allocated to processes of this cgroup with respect to others
+- To validate this we must have at least two containers running - each of them attached to a different cpu-controller
+- cd /sys/fs/cgroup
+- cd cpu
+- mkdir CPULimiter2
+- cd CPULimiter2
+- echo <integer> > cpu.shares
+-Run a second unshared-container instance and connect it to the new CPU controler
+	- Note that we now have 10 times the CPU-shares set
+	- Now when you run similar loads on these two instances of unshared-containers (wach associated to a different controler), you must see CPU allocation split 1:10 between there
+- We have to ensure that the containers are restricted to one CPU-core
+	-If not the loads may run on separate 100% cores
+- We can restrict them to one core by changing the cpuset cgroup controller
+- cd /sys/fs/cgroup
+- cd cpu
+- cd CPULimiter
+- echo <CONTAINER1_PID> > tasks
+- cd /sys/fs/cgroup
+- cd cpu
+- cd CPULimiter2
+- echo <CONTAINER2_PID> > tasks
+(In Host)
+- cd /sys/fs/cgroup
+- cpuset
+- mkdir CPURestrictor
+- cd CPURestrictor
+- echo 0 > cpuset.cpus
+- echo 0-1 > cpuset.mems
+- The two instructions above will restrict both containers to CPU-core-0 with 2 memory nodes
+- cd CPURestrictor
+- echo <CONTAINER1_PID> > tasks
+- echo <CONTAINER2_PID> > tasks
+- Run BOTH unshared containers
+- Install stress in your rootfs
+- Run strees --cpu 1 -v in BOTH containers
+- htop
+- Figure out how to control block-io and network
+
+
+EXPERIMENT 10:
+- Figure out block-io read and write restrictions

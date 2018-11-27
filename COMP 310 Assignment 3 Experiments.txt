@@ -1,0 +1,336 @@
+COMP 310 Assignment 3 Experiments:
+
+EXPERIMENT 1:
+- Commands:
+	cd /proc
+	ls
+	cd self
+	ls
+	cd ns
+	ls
+- Results: Saw current kernel state in proc, all psofcesses that I was using in seld, and all namespaces in ns
+
+
+
+EXPERIMENT 2:
+- Command Line:
+	root@45166eddf0b6:~# pstree -g -s
+	bash(1)---sleep(1)
+	root@45166eddf0b6:~#
+
+
+
+EXPERIMENT 3:
+- Command Line:
+	root@45166eddf0b6:~# sudo unshare -fp /bin/sh
+	# pstree -g -s
+	bash(1)---sleep(1)
+	# exit
+	/bin/sh: 2: Cannot set tty process group (No such process)
+	root@45166eddf0b6:~#
+	root@45166eddf0b6:~# sudo unshare -fp --mount-proc=/proc /bin/sh
+	# pstree -g -s
+	sh(1)---pstree(2)
+	# exit
+	/bin/sh: 3: Cannot set tty process group (No such process)
+	root@45166eddf0b6:~#
+
+
+
+EXPERIMENT 4:
+- Command Line 1:
+	root@45166eddf0b6:/home# sudo unshare --mount-proc=/proc -fp /bin/sh
+	# ls
+	# mkdir tes
+	# ls
+	test
+	#
+
+	PING 8.8.8.8 COMMAND IN SHELL 1
+	# ping 8.8.8.8
+	(cmdline 1 ping process running)
+	Killed
+	(killed from the host)
+	#
+
+	PING 8.8.8.8 COMMAND IN SHELL 2
+	# htop -u ktagoe
+	Error: invalid user "ktagoe"
+	# htop -u root
+	(cmdline 2 ping 8.8.8.8 process wasn't seen)
+	#
+
+	PING 8.8.8.8 COMMAND IN HOST SHELL
+	# htop -u root
+	(hosts ping 8.8.8.8 process wasn't seen)
+	#
+- Command line 2:
+	root@45166eddf0b6:/home# sudo unshare --mount-proc=/proc -fp /bin/sh
+	# ls
+	test
+	# rmdir test
+	# ls
+	#
+
+	PING 8.8.8.8 COMMAND IN SHELL 1
+	# htop -u ktagoe
+	Error: invalid user "ktagoe"
+	# htop -u root
+	(cmdline 1 ping 8.8.8.8 process wasn't seen)
+	#
+
+	PING 8.8.8.8 COMMAND IN SHELL 2
+	# ping 8.8.8.8
+	(cmdline 2 ping process running)
+	Killed
+	(killed from the host)
+	#
+
+	PING 8.8.8.8 COMMAND IN HOST SHELL
+	# htop -u root
+	(hosts ping 8.8.8.8 process wasn't seen)
+	#
+
+- Host Command Line:
+	PING 8.8.8.8 COMMAND IN SHELL 1
+	root@45166eddf0b6:/home# htop -u ktagoe
+	(You see all processes - cmdline 1 ping 8.8.8.8 process is 132)
+	root@45166eddf0b6:/home# kill -9 132
+	root@45166eddf0b6:/home#
+
+	PING 8.8.8.8 COMMAND IN SHELL 2
+	root@45166eddf0b6:/home# htop -u ktagoe
+	(You see all processes - cmdline 2 ping 8.8.8.8 process is 156)
+	root@45166eddf0b6:/home# kill -9 156
+	root@45166eddf0b6:/home#
+
+	PING 8.8.8.8 COMMAND IN HOST SHELL
+	root@45166eddf0b6:/home# ping 8.8.8.8
+	(ping process running)
+	root@45166eddf0b6:/home# ^C
+	root@45166eddf0b6:/home#
+
+- Responses:
+	1. Do you see the processes that you run in one shell from the other shell?
+		No
+	2. Do you see the programs you run in the shell from the host?
+		No
+	3. Can you kill the programs that you run the shells from outside (i.e., outside the shell but in the same host)? To do this you need to have another terminal. If you are doing this experiment in a Docker container, you need to run a docker exec to get into the container because the docker container is your host.
+		Yes
+	4. Launch some programs in the host. Do you see those processes inside the shells?
+	   (use: htop -u <SOCS_USERNAME> to list processes run by you)
+	   	No
+
+
+
+EXPERIMENT 5:
+- Command Line 1:
+	PRIVILEGES CHECK IN SHELL 1
+	root@45166eddf0b6:/home# unshare -fpU --mount-proc=/proc /bin/bash
+	nobody@45166eddf0b6:/home$ id
+	uid=65534(nobody) gid=65534(nogroup) groups=65534(nogroup)
+	nobody@45166eddf0b6:/home$ adduser
+	adduser: Only root may add a user or group to the system.
+	nobody@45166eddf0b6:/home$
+
+	PRIVILEGES CHECK AFTER UID & GID MAPPING IN SHELL 1
+	nobody@45166eddf0b6:/home$ id
+	uid=0(root) gid=0(root) groups=0(root)
+	nobody@45166eddf0b6:/home$
+
+- Command Line 2:
+	UID & GID MAPPING IN SHELL 2
+	root@45166eddf0b6:/home# ps axu | grep bash
+	root         1  0.0  0.0  18376  3032 ?        Ss   20:35   0:00 /bin/bash -c trap : TERM INT; sleep infinity & wait
+	root       159  0.0  0.0  18508  3500 pts/0    Ss   21:39   0:00 /bin/bash
+	root       170  0.0  0.0   4520   812 pts/0    S    21:41   0:00 unshare -fpU --mount-proc=/proc /bin/bash
+	root       171  0.0  0.0  18508  3484 pts/0    S+   21:41   0:00 /bin/bash
+	root       180  0.0  0.0  18508  3308 pts/1    Ss   21:51   0:00 /bin/bash
+	root       192  0.0  0.0  11464  1008 pts/1    S+   21:54   0:00 grep --color=auto bash
+	root@45166eddf0b6:/home# sudo newuidmap 170 0 0 1
+	root@45166eddf0b6:/home# sudo newgidmap 170 0 0 1
+	root@45166eddf0b6:/home#
+
+
+
+EXPERIMENT 6:
+- Command Line:
+	HOSTNAME SWITCH IN CHILD NAMESPACE
+	root@45166eddf0b6:/home# sudo unshare -fpu --mount-proc=/proc /bin/bash
+	root@45166eddf0b6:/home# hostname rscktagoe
+	root@45166eddf0b6:/home# hostname
+	rscktagoe
+	root@45166eddf0b6:/home#
+
+	HOSTNAME CHECK (after switch in parent namespace)
+	root@45166eddf0b6:/home# hostname
+	rscktagoe
+	root@45166eddf0b6:/home#
+
+- Host Command Line:
+	HOSTNAME SWITCH IN PARENT NAMESPACE (after switch in child namespace)
+	root@45166eddf0b6:/home# hostname
+	45166eddf0b6
+	root@45166eddf0b6:/home# hostname rsckt
+	root@45166eddf0b6:/home# hostname
+	rsckt
+	root@45166eddf0b6:/home#
+
+- Responses:
+	1. does hostname xyxy work in the child namespace? - is the hostname in the shell changing or not?
+		Yes
+	2. does hostname xyxy work in th parent namespace?
+		No
+
+
+
+EXPERIMENT 7:
+- Command Line:
+	root@45166eddf0b6:/home# debootstrap jessie jrootfs
+	(Installation occurs)
+	root@45166eddf0b6:/home# cd jrootfs
+	root@45166eddf0b6:/home/jrootfs# sudo unshare -fpu --mount-proc=/proc /bin/bash
+	root@45166eddf0b6:/home/jrootfs# chroot .
+	root@45166eddf0b6:/# mount -t proc proc /proc
+	root@45166eddf0b6:/# ls
+	bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+	root@45166eddf0b6:/# exit
+	exit
+	root@45166eddf0b6:/home/jrootfs#
+	root@45166eddf0b6:/home# cd jrootfs/sys
+	root@45166eddf0b6:/home/jrootfs/sys# ls
+	root@45166eddf0b6:/home/jroo0tfs/sys# mkdir fs
+	root@45166eddf0b6:/home/jrootfs/sys# ls
+	fs
+	root@45166eddf0b6:/home/jrootfs/sys# cd fs
+	root@45166eddf0b6:/home/jrootfs/sys/fs# ls
+	root@45166eddf0b6:/home/jrootfs/sys/fs# mkdir cgroup
+	root@45166eddf0b6:/home/jrootfs/sys/fs# ls
+	cgroup
+	root@45166eddf0b6:/home/jrootfs/sys/fs# cd cgroup
+	root@45166eddf0b6:/home/jrootfs/sys/fs/cgroup# ls
+	root@45166eddf0b6:/home/jrootfs/sys/fs/cgroup# cd ..
+	root@45166eddf0b6:/home/jrootfs/sys/fs# cd ..
+	root@45166eddf0b6:/home/jrootfs/sys# cd ..
+	root@45166eddf0b6:/home/jrootfs# cd ..
+	root@45166eddf0b6:/home# ls
+	jrootfs
+	root@45166eddf0b6:/home# mount --rbind /sys/fs/cgroup jrootfs/sys/fs/cgroup
+	root@45166eddf0b6:/home# sudo unshare -fpu --mount-proc=/proc /bin/bash
+	root@45166eddf0b6:/home# cd jrootfs
+	root@45166eddf0b6:/home/jrootfs# chroot .
+	root@45166eddf0b6:/# ls
+	bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+	root@45166eddf0b6:/# exit
+	exit
+	root@45166eddf0b6:/home/jrootfs#
+
+
+
+EXPERIMENT 8
+- Command Line:
+	root@da8680220709:/home# mount --rbind /sys/fs/cgroup jrootfs/sys/fs/cgroup
+	root@da8680220709:/home# cd jrootfs
+	root@da8680220709:/home/jrootfs# sudo unshare -fpu --mount-proc=/proc /bin/bash
+	root@da8680220709:/home/jrootfs# chroot .
+	root@da8680220709:/# cd /sys/fs/cgroup
+	root@da8680220709:/sys/fs/cgroup# ls
+	blkio  cpu,cpuacct  cpuset   freezer  memory   net_cls,net_prio  perf_event  rdma
+	cpu    cpuacct	    devices  hugetlb  net_cls  net_prio		 pids	     systemd
+	root@da8680220709:/sys/fs/cgroup# cd memory
+	root@da8680220709:/sys/fs/cgroup/memory# ls 	(AUTOGENERATED FILES)
+	cgroup.clone_children		memory.kmem.tcp.max_usage_in_bytes  memory.oom_control
+	cgroup.event_control		memory.kmem.tcp.usage_in_bytes	    memory.pressure_level
+	cgroup.procs			memory.kmem.usage_in_bytes	    memory.soft_limit_in_bytes
+	memory.failcnt			memory.limit_in_bytes		    memory.stat
+	memory.force_empty		memory.max_usage_in_bytes	    memory.swappiness
+	memory.kmem.failcnt		memory.memsw.failcnt		    memory.usage_in_bytes
+	memory.kmem.limit_in_bytes	memory.memsw.limit_in_bytes	    memory.use_hierarchy
+	memory.kmem.max_usage_in_bytes	memory.memsw.max_usage_in_bytes     notify_on_release
+	memory.kmem.slabinfo		memory.memsw.usage_in_bytes	    tasks
+	memory.kmem.tcp.failcnt		memory.move_charge_at_immigrate
+	memory.kmem.tcp.limit_in_bytes	memory.numa_stat
+	root@da8680220709:/sys/fs/cgroup/memory# mkdir ExMemLimiter
+	root@da8680220709:/sys/fs/cgroup/memory# cd ExMemLimiter
+	root@da8680220709:/sys/fs/cgroup/memory/ExMemLimiter# ls 	(AUTOGENERATED FILES)
+	cgroup.clone_children		memory.kmem.tcp.max_usage_in_bytes  memory.oom_control
+	cgroup.event_control		memory.kmem.tcp.usage_in_bytes	    memory.pressure_level
+	cgroup.procs			memory.kmem.usage_in_bytes	    memory.soft_limit_in_bytes
+	memory.failcnt			memory.limit_in_bytes		    memory.stat
+	memory.force_empty		memory.max_usage_in_bytes	    memory.swappiness
+	memory.kmem.failcnt		memory.memsw.failcnt		    memory.usage_in_bytes
+	memory.kmem.limit_in_bytes	memory.memsw.limit_in_bytes	    memory.use_hierarchy
+	memory.kmem.max_usage_in_bytes	memory.memsw.max_usage_in_bytes     notify_on_release
+	memory.kmem.slabinfo		memory.memsw.usage_in_bytes	    tasks
+	memory.kmem.tcp.failcnt		memory.move_charge_at_immigrate
+	memory.kmem.tcp.limit_in_bytes	memory.numa_stat
+	root@da8680220709:/sys/fs/cgroup/memory/ExMemLimiter# echo 2000000 > memory.limit_in_bytes
+	root@da8680220709:/sys/fs/cgroup/memory/ExMemLimiter# echo 0 > tasks_name
+	bash: tasks_name: Permission denied
+	root@da8680220709:/sys/fs/cgroup/memory/ExMemLimiter# echo 0 > tasks     
+	root@da8680220709:/sys/fs/cgroup/memory/ExMemLimiter# cd ..
+	root@da8680220709:/sys/fs/cgroup/memory# cd ..
+	root@da8680220709:/sys/fs/cgroup# cd ..
+	root@da8680220709:/sys/fs# cd ..
+	root@da8680220709:/sys# cd ..
+	root@da8680220709:/# ls
+	bin   dev  home  lib64	mnt  proc  run	 srv  tmp  var
+	boot  etc  lib	 media	opt  root  sbin  sys  usr
+	root@da8680220709:/#
+
+EXPERIMENT 8: (Repeated)
+- Command Line:
+	root@f181296c5acd:/# cd /sys/fs/cgroup
+	root@f181296c5acd:/sys/fs/cgroup# cd memory
+	root@f181296c5acd:/sys/fs/cgroup/memory# mkdir ExMemLimiter
+	root@f181296c5acd:/sys/fs/cgroup/memory# cd ExMemLimiter
+	root@f181296c5acd:/sys/fs/cgroup/memory/ExMemLimiter# echo 2000000 >  memory.limit_in_bytes  
+	root@f181296c5acd:/sys/fs/cgroup/memory/ExMemLimiter# echo 0 >  tasks
+	root@f181296c5acd:/home# cd /sys
+	root@f181296c5acd:/sys# ls
+	fs
+	root@f181296c5acd:/sys# cd ..
+	root@f181296c5acd:/# ls
+	bin   dev  home  lib64	mnt  proc  run	 srv  tmp  var
+	boot  etc  lib	 media	opt  root  sbin  sys  usr
+	root@f181296c5acd:/# cd home
+	root@f181296c5acd:/home# ls
+	Killed
+	root@f181296c5acd:/home# ls
+	Killed
+	root@f181296c5acd:/home# 
+
+
+EXPERIMENT 9:
+- Command Line:
+
+	CONTAINER 1
+	root@f181296c5acd:/# cd /sys/fs/cgroup
+	root@f181296c5acd:/sys/fs/cgroup# cd cpu
+	root@f181296c5acd:/sys/fs/cgroup/cpu# mkdir CPULimiter
+	root@f181296c5acd:/sys/fs/cgroup/cpu# cd CPULimiter
+	root@f181296c5acd:/sys/fs/cgroup/cpu# echo 7 > cpu.shares
+	root@f181296c5acd:/sys/fs/cgroup/cpu# cd ..  
+	root@f181296c5acd:/sys/fs/cgroup/cpu/CPULimiter# echo 0 > tasks
+
+	CONTAINER 2:
+	root@f181296c5acd:/# cd /sys/fs/cgroup
+	root@f181296c5acd:/sys/fs/cgroup# cd cpu
+	root@f181296c5acd:/sys/fs/cgroup/cpu# mkdir CPULimiter2
+	root@f181296c5acd:/sys/fs/cgroup/cpu# cd CPULimiter2
+	root@f181296c5acd:/sys/fs/cgroup/cpu/CPULimiter2# echo 3 > cpu.shares
+	root@f181296c5acd:/sys/fs/cgroup/cpu/CPULimiter2#
+	root@f181296c5acd:/sys/fs/cgroup/cpu/CPULimiter2# echo 0 > tasks
+
+	HOST:
+	root@f181296c5acd:/sys/fs/cgroup# cd cpuset
+	root@f181296c5acd:/sys/fs/cgroup/cpuset# mkdir CPURestrictor
+	root@f181296c5acd:/sys/fs/cgroup/cpuset# cd CPURestrictor
+	root@f181296c5acd:/sys/fs/cgroup/cpuset/CPURestrictor# echo 0 > cpuset.cpus
+	root@f181296c5acd:/sys/fs/cgroup/cpuset/CPURestrictor# echo 0-1 > cpuset.mems
+	root@f181296c5acd:/sys/fs/cgroup/cpuset/CPURestrictor# 
+	root@f181296c5acd:/home/jrootfs/sys/fs/cgroup/cpuset/CPURestrictor# echo 19035 > tasks
+	root@f181296c5acd:/home/jrootfs/sys/fs/cgroup/cpuset/CPURestrictor# echo  19063 > tasks
+	root@f181296c5acd:/home/jrootfs/sys/fs/cgroup/cpuset/CPURestrictor# cat tasks
+	19035
+	19063
