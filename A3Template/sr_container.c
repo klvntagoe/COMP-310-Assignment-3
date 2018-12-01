@@ -29,7 +29,7 @@ struct cgroup_setting self_to_task = {
  *      in the comments for the main() below
  *  ------------------------------------------------------
  **/ 
-struct cgroups_control *cgroups[5] = {
+struct cgroups_control *cgroups[6] = {
 	& (struct cgroups_control) {
 		.control = CGRP_BLKIO_CONTROL,
 		.settings = (struct cgroup_setting *[]) {
