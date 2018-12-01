@@ -51,7 +51,7 @@ int setup_child_capabilities()
     }
 
     cap_t caps = cap_get_proc();
-    if (caps == NULL)_{
+    if (caps == NULL) {
         perror("cap_get_proc");
         if (caps) cap_free(caps);
         return EXIT_FAILURE;
