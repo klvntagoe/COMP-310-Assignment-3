@@ -182,8 +182,8 @@ int main(int argc, char **argv)
      **/
 
         // You code for clone() goes here
-     void* child_stack = malloc(STACK_SIZE) + STACK_SIZE;
-     child_pid = clone( &child_function, child_stack, SIGCHLD | CLONE_NEWNET | CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWIPC | CLONE_NEWNS | CLONE_NEWUTS, (void *) config);
+     void* stack = malloc(STACK_SIZE) + STACK_SIZE;
+     child_pid = clone(&child_function, stack, SIGCHLD | CLONE_NEWNET | CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWIPC | CLONE_NEWNS | CLONE_NEWUTS, config);
 
     /**
      *  ------------------------------------------------------
