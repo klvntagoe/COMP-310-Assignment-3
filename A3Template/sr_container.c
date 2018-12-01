@@ -168,11 +168,12 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
+
     /**
      * ------------------------ TODO ------------------------
      * Setup a stack and create a new child process using the clone() system call
      * Ensure you have correct flags for the following namespaces:
-     *      Network, Cgroup, PID, IPC, Mount, UTS (You don't need to add user namespace)
+     *      Network, Cgrupo, PID, IPC, Mount, UTS (You don't need to add user namespace)
      * Set the return value of clone to 'child_pid'
      * Ensure to add 'SIGCHLD' flag to the clone() call
      * You can use the 'child_function' given below as the function to run in the cloned process
@@ -181,6 +182,8 @@ int main(int argc, char **argv)
      **/
 
         // You code for clone() goes here
+     void* child_stack = malloc(STACK_SIZE) + STACK_SIZE;
+     int chold_pid = clone( &child_function, child_stack, SIGCHLD | CLONE_NEWNET | CLONE_NEWCGROUP | CLONE_NEWPID | CLONE_NEWIPC | CLONE_NEWNS | CLONE_NEWUTS, (void *) config);
 
     /**
      *  ------------------------------------------------------
