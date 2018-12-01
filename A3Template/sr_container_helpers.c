@@ -43,7 +43,7 @@ int setup_child_capabilities()
     int drop_caps[] = {CAP_AUDIT_CONTROL, CAP_AUDIT_READ, CAP_AUDIT_WRITE, CAP_BLOCK_SUSPEND, CAP_DAC_READ_SEARCH, CAP_FSETID, CAP_IPC_LOCK, CAP_MAC_ADMIN, CAP_MAC_OVERRIDE, CAP_MKNOD, CAP_SETFCAP, CAP_SYSLOG, CAP_SYS_ADMIN, CAP_SYS_BOOT, CAP_SYS_MODULE, CAP_SYS_NICE, CAP_SYS_RAWIO, CAP_SYS_RESOURCE, CAP_SYS_TIME, CAP_WAKE_ALARM};
     size_t num_caps_to_drop = 20;
 
-    for (size_t i = 0; i , num_caps_to_drop; i++){
+    for (size_t i = 0; i < num_caps_to_drop; i++){
         if ( prctl(PR_CAPBSET_DROP, drop_caps[i], 0, 0, 0) ){
             fprintf(stderr, "prctl failed: %m\n");
             return 1;
