@@ -103,7 +103,7 @@ int setup_syscall_filters()
 
     //Seccomp filter setup for 'ptrace'
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(ptrace), 0);
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'ptrace': %m\n");
         return EXIT_FAILURE;
@@ -111,7 +111,7 @@ int setup_syscall_filters()
 
     //Seccomp filter setup for 'mbind'
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(mbind), 0);
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'mbind': %m\n");
         return EXIT_FAILURE;
@@ -119,7 +119,7 @@ int setup_syscall_filters()
 
     //Seccomp filter setup for 'migrate_pages'
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(migrate_pages), 0);
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'migrate_pages': %m\n");
         return EXIT_FAILURE;
@@ -127,7 +127,7 @@ int setup_syscall_filters()
 
     //Seccomp filter for unshare - ONLY WHEN THE 'CLONE_NEWUSER' flag is set
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(unshare), 1, SCMP_A0(SCMP_CMP_MASKED_EQ, CLONE_NEWUSER, CLONE_NEWUSER));
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'unshare': %m\n");
         return EXIT_FAILURE;
@@ -135,7 +135,7 @@ int setup_syscall_filters()
 
     //Seccomp filter for clone - ONLY WHEN THE 'CLONE_NEWUSER' flag is set
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(clone), 1, SCMP_A2(SCMP_CMP_MASKED_EQ, CLONE_NEWUSER, CLONE_NEWUSER));
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'clone': %m\n");
         return EXIT_FAILURE;
@@ -143,7 +143,7 @@ int setup_syscall_filters()
 
     //Seccomp filter for chmod - ONLY WHEN THE 'S_ISUID' and 'S_ISGID' flag is set
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(chmod), 2, SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISUID, S_ISUID), SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISGID, S_ISGID));
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'chmod': %m\n");
         return EXIT_FAILURE;
