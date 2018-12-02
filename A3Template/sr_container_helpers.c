@@ -95,7 +95,7 @@ int setup_syscall_filters()
 
     //Seccomp filter setup for 'move_pages'
     filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(move_pages), 0);
-    if (silter_set_status){
+    if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'move_pages': %m\n");
         return EXIT_FAILURE;
@@ -150,9 +150,9 @@ int setup_syscall_filters()
     }
 
     //Seccomp attribute setup to control privelege escalation of chile processes spawned with exec() in a parent with lesser privelege
-    filter_set_status = seccomp_attr_set(seccomp_ctx, SCMP_FLATATR_CTL_NNP, 0);
+    filter_set_status = seccomp_attr_set(seccomp_ctx, SCMP_FLTATR_CTL_NNP, 0);
     if (filter_set_status){
-        if (sccomp_ctx) seccomp_release(seccomp_ctx);
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not not set attribute 'SCMP_FLATATR_CTL_NNP': %m\n");
         return EXIT_FAILURE;
     }
@@ -162,7 +162,7 @@ int setup_syscall_filters()
     if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not load the new context %m\n");
-        return EXIT_FAILURE
+        return EXIT_FAILURE;
     }
 
     return 0;
