@@ -83,6 +83,88 @@ int setup_child_capabilities()
  **/ 
 int setup_syscall_filters()
 {
+    int filter_set_status;
+
+    //Seccomp context initialization
+    scmp_filter_ctx seccomp_ctx = seccomp_init(SCMP_ACT_ALLOW);
+    if (!seccomp_ctx){
+        fprintf(stderr, "seccomp initialization failed: %m\n");
+        return EXIT_FAILURE;
+
+    }
+
+    //Seccomp filter setup for 'move_pages'
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(move_pages), 0);
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'move_pages': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp filter setup for 'ptrace'
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(ptrace), 0);
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'ptrace': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp filter setup for 'mbind'
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(mbind), 0);
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'mbind': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp filter setup for 'migrate_pages'
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(migrate_pages), 0);
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'migrate_pages': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp filter for unshare - ONLY WHEN THE 'CLONE_NEWUSER' flag is set
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(unshare), 1, SCMP_A0(SCMP_CMP_MASKED_EQ, CLONE_NEWUSER, CLONE_NEWUSER));
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'unshare': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp filter for clone - ONLY WHEN THE 'CLONE_NEWUSER' flag is set
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(clone), 1, SCMP_A2(SCMP_CMP_MASKED_EQ, CLONE_NEWUSER, CLONE_NEWUSER));
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'clone': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp filter for chmod - ONLY WHEN THE 'S_ISUID' and 'S_ISGID' flag is set
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(chmod), 2, SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISUID, S_ISUID), SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISGID, S_ISGID));
+    if (silter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'chmod': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Seccomp attribute setup to control privelege escalation of chile processes spawned with exec() in a parent with lesser privelege
+    filter_set_status = seccomp_attr_set(seccomp_ctx, SCMP_FLATATR_CTL_NNP, 0);
+    if (filter_set_status){
+        if (sccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not not set attribute 'SCMP_FLATATR_CTL_NNP': %m\n");
+        return EXIT_FAILURE;
+    }
+
+    //Load the seccomp context into th kernel and release it from teh curent proces memory
+    filter_set_status = seccomp_load(seccomp_ctx);
+    if (filter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not load the new context %m\n");
+        return EXIT_FAILURE
+    }
+
     return 0;
 }
 
