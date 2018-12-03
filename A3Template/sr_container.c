@@ -128,7 +128,7 @@ int main(int argc, char **argv)
 						cpu_group->settings[1] = &self_to_task;
 						cpu_group->settings[2] = NULL;
 
-						cgroups[indexToWrite] = &cpu_group;
+						cgroups[indexToWrite] = cpu_group;
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 						cpuset_group->settings[2] = &self_to_task;
 						cpuset_group->settings[3] = NULL;
 
-						cgroups[indexToWrite] = &cpu_group;
+						cgroups[indexToWrite] = cpu_group;
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
 						pid_group->settings[1] = &self_to_task;
 						pid_group->settings[2] = NULL;
 
-						cgroups[indexToWrite] = &cpu_group;
+						cgroups[indexToWrite] = cpu_group;
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
@@ -197,7 +197,7 @@ int main(int argc, char **argv)
 						memory_group->settings[1] = &self_to_task;
 						memory_group->settings[2] = NULL;
 
-						cgroups[indexToWrite] = &cpu_group;
+						cgroups[indexToWrite] = cpu_group;
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
