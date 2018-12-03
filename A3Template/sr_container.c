@@ -77,16 +77,16 @@ int main(int argc, char **argv)
     bool found_cflag = false;
 		int indexToWrite = 1;
 
-		cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
+		struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
 		cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
-		cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
-		cpuset_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+		struct cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
+		cpuset_group->settings = malloc(4*sizeof(struct cgroup_setting*));
 
-		cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
+		struct cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
 		pid_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
-		cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
+		struct cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
 		memory_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
     while ((option = getopt(argc, argv, "c:m:u:C:s:p:M:r:w:H:")))
