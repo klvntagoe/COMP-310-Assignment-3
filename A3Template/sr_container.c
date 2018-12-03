@@ -11,11 +11,11 @@
 
 /**
  *  The cgroup setting to add the writing task to the cgroup
- *  '0' is considered a special value and writing it to 'tasks' asks for the wrinting 
- *      process to be added to the cgroup. 
+ *  '0' is considered a special value and writing it to 'tasks' asks for the wrinting
+ *      process to be added to the cgroup.
  *  You must add this to all the controls you create so that it is added to the task list.
  *  See the example 'cgroups_control' added to the array of controls - 'cgroups' - below
- **/  
+ **/
 struct cgroup_setting self_to_task = {
 	.name = "tasks",
 	.value = "0"
@@ -25,10 +25,10 @@ struct cgroup_setting self_to_task = {
  *  ------------------------ TODO ------------------------
  *  An array of different cgroup-controllers.
  *  One controller has been been added for you.
- *  You should fill this array with the additional controls from commandline flags as described 
+ *  You should fill this array with the additional controls from commandline flags as described
  *      in the comments for the main() below
  *  ------------------------------------------------------
- **/ 
+ **/
 struct cgroups_control *cgroups[6] = {
 	& (struct cgroups_control) {
 		.control = CGRP_BLKIO_CONTROL,
@@ -51,7 +51,7 @@ struct cgroups_control *cgroups[6] = {
  *          1. m : The rootfs of the container
  *          2. u : The userid mapping of the current user inside the container
  *          3. c : The initial process to run inside the container
- *  
+ *
  *   You must extend it to support the following flags:
  *          1. C : The cpu shares weight to be set (cpu-cgroup controller)
  *          2. s : The cpu cores to which the container must be restricted (cpuset-cgroup controller)
@@ -59,8 +59,8 @@ struct cgroups_control *cgroups[6] = {
  *          4. M : The memory consuption allowed in the container (memory-cgroup controller)
  *          5. r : The read IO rate in bytes (blkio-cgroup controller)
  *          6. w : The write IO rate in bytes (blkio-cgroup controller)
- *          7. H : The hostname of the container 
- * 
+ *          7. H : The hostname of the container
+ *
  *   You can follow the current method followed to take in these flags and extend it.
  *   Note that the current implementation necessitates the "-c" flag to be the last one.
  *   For flags 1-6 you can add a new 'cgroups_control' to the existing 'cgroups' array
@@ -75,7 +75,21 @@ int main(int argc, char **argv)
     pid_t child_pid = 0;
     int last_optind = 0;
     bool found_cflag = false;
-    while ((option = getopt(argc, argv, "c:m:u:")))
+		int indexToWrite = 1;
+
+		struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
+		cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+
+		struct cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
+		cpuset_group->settings = malloc(4*sizeof(struct cgroup_setting*));
+
+		struct cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
+		pid_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+
+		struct cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
+		memory_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+
+    while ((option = getopt(argc, argv, "c:m:u:C:s:p:M:r:w:H:")))
     {
         if (found_cflag)
             break;
@@ -98,6 +112,106 @@ int main(int argc, char **argv)
                 return EXIT_FAILURE;
             }
             break;
+				case 'C':
+
+						for (int i = 0; i < 3; i++){
+
+							cpu_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(cpu_group->control, CGRP_CPU_CONTROL);
+
+						strcpy(cpu_group->settings[0]->name, "cpu.shares");
+						strcpy(cpu_group->settings[0]->value, optarg);
+
+						cpu_group->settings[1] = &self_to_task;
+						cpu_group->settings[2] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 's':
+
+						for (int i = 0; i < 4; i++){
+
+							cpuset_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(cpuset_group->control, CGRP_CPU_SET_CONTROL);
+
+						strcpy(cpuset_group->settings[0]->name, "cpuset.cpus");
+						strcpy(cpuset_group->settings[0]->value, optarg);
+
+						strcpy(cpuset_group->settings[1]->name, "cpuset.mems");
+						strcpy(cpuset_group->settings[1]->value, "0-1");
+
+						cpuset_group->settings[2] = &self_to_task;
+						cpuset_group->settings[3] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 'p':
+
+						for (int i = 0; i < 3; i++){
+
+							pid_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(pid_group->control, CGRP_PIDS_CONTROL);
+
+						strcpy(pid_group->settings[0]->name, "pids.max");
+						strcpy(pid_group->settings[0]->value, optarg);
+
+						pid_group->settings[1] = &self_to_task;
+						pid_group->settings[2] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 'M':
+
+						for (int i = 0; i < 3; i++){
+
+							memory_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(memory_group->control, CGRP_MEMORY_CONTROL);
+
+						strcpy(memory_group->settings[0]->name, "memory.limit_in_bytes");
+						strcpy(memory_group->settings[0]->value, optarg);
+
+						memory_group->settings[1] = &self_to_task;
+						memory_group->settings[2] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 'r': //different
+
+				case 'w': //different
+
+				case 'H':
+
+						config.hostname = optarg;
+						break;
+
         default:
             cleanup_stuff(argv, sockets);
             return EXIT_FAILURE;
@@ -157,7 +271,7 @@ int main(int argc, char **argv)
     /**
      * ------------------------ TODO ------------------------
      * This method here is creating the control groups using the 'cgroups' array
-     * Make sure you have filled in this array with the correct values from the command line flags 
+     * Make sure you have filled in this array with the correct values from the command line flags
      * Nothing to write here, just caution to ensure the array is filled
      * ------------------------------------------------------
      **/
@@ -187,7 +301,7 @@ int main(int argc, char **argv)
 
     /**
      *  ------------------------------------------------------
-     **/ 
+     **/
     if (child_pid == -1)
     {
         fprintf(stderr, "####### > child creation failed! %m\n");
