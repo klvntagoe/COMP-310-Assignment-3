@@ -141,13 +141,22 @@ int setup_syscall_filters()
         return EXIT_FAILURE;
     }
 
-    //Seccomp filter for chmod - ONLY WHEN THE 'S_ISUID' and 'S_ISGID' flag is set
-    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(chmod), 2, SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISUID, S_ISUID), SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISGID, S_ISGID));
+    //Seccomp filter for chmod - ONLY WHEN THE 'S_ISUID' flag is set
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(chmod), 1, SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISUID, S_ISUID));
     if (filter_set_status){
         if (seccomp_ctx) seccomp_release(seccomp_ctx);
         fprintf(stderr, "seccomp could not add KILL rule for 'chmod': %m\n");
         return EXIT_FAILURE;
     }
+
+    //Seccomp filter for chmod - ONLY WHEN THE 'S_ISUID' flag is set
+    filter_set_status = seccomp_rule_add(seccomp_ctx, SCMP_FAIL, SCMP_SYS(chmod), 1, SCMP_A1(SCMP_CMP_MASKED_EQ, S_ISGID, S_ISGID));
+    if (filter_set_status){
+        if (seccomp_ctx) seccomp_release(seccomp_ctx);
+        fprintf(stderr, "seccomp could not add KILL rule for 'chmod': %m\n");
+        return EXIT_FAILURE;
+    }
+
 
     //Seccomp attribute setup to control privelege escalation of chile processes spawned with exec() in a parent with lesser privelege
     filter_set_status = seccomp_attr_set(seccomp_ctx, SCMP_FLTATR_CTL_NNP, 0);

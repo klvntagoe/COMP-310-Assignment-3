@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     pid_t child_pid = 0;
     int last_optind = 0;
     bool found_cflag = false;
-		int indexToWrite = 1;
+		//int indexToWrite = 1;
 
 		struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
 		cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
