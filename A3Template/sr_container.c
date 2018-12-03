@@ -75,6 +75,19 @@ int main(int argc, char **argv)
     pid_t child_pid = 0;
     int last_optind = 0;
     bool found_cflag = false;
+		int indexToWrite = 1;
+
+		cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
+		cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+
+		cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
+		cpuset_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+
+		cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
+		pid_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+
+		cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
+		memory_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
     while ((option = getopt(argc, argv, "c:m:u:C:s:p:M:r:w:H:")))
     {
@@ -101,9 +114,6 @@ int main(int argc, char **argv)
             break;
 				case 'C':
 
-						struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
-						cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
-
 						for (int i = 0; i < 3; i++){
 
 							cpu_group->settings[i] = malloc(sizeof(struct cgroup_setting));
@@ -118,12 +128,13 @@ int main(int argc, char **argv)
 						cpu_group->settings[1] = &self_to_task;
 						cpu_group->settings[2] = NULL;
 
+						cgroups[indexToWrite] = &cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
 						break;
 
 				case 's':
-
-						struct cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
-						cpuset_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
 						for (int i = 0; i < 4; i++){
 
@@ -142,12 +153,13 @@ int main(int argc, char **argv)
 						cpuset_group->settings[2] = &self_to_task;
 						cpuset_group->settings[3] = NULL;
 
+						cgroups[indexToWrite] = &cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
 						break;
 
 				case 'p':
-
-						struct cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
-						pid_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
 						for (int i = 0; i < 3; i++){
 
@@ -163,12 +175,13 @@ int main(int argc, char **argv)
 						pid_group->settings[1] = &self_to_task;
 						pid_group->settings[2] = NULL;
 
+						cgroups[indexToWrite] = &cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
 						break;
 
 				case 'M':
-
-						struct cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
-						memory_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
 						for (int i = 0; i < 3; i++){
 
@@ -184,11 +197,21 @@ int main(int argc, char **argv)
 						memory_group->settings[1] = &self_to_task;
 						memory_group->settings[2] = NULL;
 
+						cgroups[indexToWrite] = &cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
 						break;
 
 				case 'r': //different
+
 				case 'w': //different
+
 				case 'H':
+
+						config.hostname = optarg;
+						break;
+
         default:
             cleanup_stuff(argv, sockets);
             return EXIT_FAILURE;
