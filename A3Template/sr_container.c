@@ -206,11 +206,11 @@ int main(int argc, char **argv)
 				// case 'r': //different
 				//
 				// case 'w': //different
-				// 
-				// case 'H':
 				//
-				// 		config.hostname = optarg;
-				// 		break;
+				case 'H':
+
+						config.hostname = optarg;
+						break;
 
         default:
             cleanup_stuff(argv, sockets);
