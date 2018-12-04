@@ -1,0 +1,17 @@
+root@496f01c1cfed:/home# ./SNR_CONTAINER -m ./jrootfs -u 1 -H ktagoe -s 0 -c /bin/bash
+####### > Checking if the host Linux version is compatible...4.15.0-39-generic on x86_64.
+####### > setting up SRContainer cgroups...blkio......####### > setting up rlimit...successfully set up cgroup controls.
+####### > child process remounting root with MS_PRIVATE...successfull remount.
+####### > a bind mount is done on a newly created tmp directory...####### > changing root with pivot_root...inner mount done.
+####### > unmounting old_root /oldroot.CdlgXK...successfully setup child mounts.
+####### > attempting a new user namespace...setting UID/GID mapping /proc/18780/uid_map...setting UID/GID mapping /proc/18780/gid_map...all done successfully.
+####### > switching to UID 1 / GID 1...setting up usernamespace done.
+daemon@ktagoe:/$ exit
+exit
+####### > cleaning cgroups...invocation to open() /sys/fs/cgroup//tasks failed: No such file or directory
+root@496f01c1cfed:/home# ./SNR_CONTAINER -m ./jrootfs -u 1 -H ktagoe -s 0 -c /bin/bash
+####### > Checking if the host Linux version is compatible...4.15.0-39-generic on x86_64.
+####### > setting up SRContainer cgroups...blkio......directory creation with mkdir() /sys/fs/cgroup//ktagoe failed: File exists
+####### > cleaning cgroups...invocation to open() /sys/fs/cgroup//tasks failed: No such file or directory
+root@496f01c1cfed:/home# 
+
