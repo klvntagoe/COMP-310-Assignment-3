@@ -1,0 +1,71 @@
+COMP 310 PHASE 2 EXPERIMENTS:
+
+
+
+
+
+TEST 4:
+daemon@ktagoe:/$ capsh --print
+Current: =
+Bounding set =cap_chown,cap_dac_override,cap_fowner,cap_kill,cap_setgid,cap_setuid,cap_setpcap,cap_linux_immutable,cap_net_bind_service,cap_net_broadcast,cap_net_admin,cap_net_raw,cap_ipc_owner,cap_sys_chroot,cap_sys_ptrace,cap_sys_pacct,cap_sys_tty_config,cap_lease
+Securebits: 00/0x0/1'b0
+ secure-noroot: no (unlocked)
+ secure-no-suid-fixup: no (unlocked)
+ secure-keep-caps: no (unlocked)
+uid=1(daemon)
+gid=1(daemon)
+groups=1(daemon)
+daemon@ktagoe:/$ 
+
+
+
+
+
+TEST 5:
+ktagoe@cs310:~/COMP-310-Assignment-3/A3Template$ ls
+ cpToDocker.sh   createContainer.sh   Makefile   runContainer.sh   sample_system_call_filter.c   SNR_CONTAINER   sr_container.c   sr_container.h   sr_container_helpers.c  'SR Container Phase 2.pdf'   sr_container_utils.c
+ktagoe@cs310:~/COMP-310-Assignment-3/A3Template$ ./runContainer.sh container_ktagoe
+root@bd4cdf764553:/home# ls
+SNR_CONTAINER  core  jrootfs  minimalSNR.sh
+root@bd4cdf764553:/home# cd jrootfs
+root@bd4cdf764553:/home/jrootfs# ls
+bin  boot  dev  etc  home  lib  lib64  media  mnt  opt  proc  root  run  sbin  srv  sys  test5  test5.c  tmp  usr  var
+root@bd4cdf764553:/home/jrootfs# ./test5 10
+Hello World!
+
+INFO: This code is running under the spawned child process.
+10 * 0 = 0
+10 * 1 = 10
+10 * 2 = 20
+10 * 3 = 30
+10 * 4 = 40
+10 * 5 = 50
+10 * 6 = 60
+10 * 7 = 70
+10 * 8 = 80
+10 * 9 = 90
+10 * 10 = 100
+Done
+INFO: Child process terminated.
+root@bd4cdf764553:/home/jrootfs# cd ..
+root@bd4cdf764553:/home# ls
+SNR_CONTAINER  core  jrootfs  minimalSNR.sh
+root@bd4cdf764553:/home# minimalSNR.sh
+bash: minimalSNR.sh: command not found
+root@bd4cdf764553:/home# ./minimalSNR.sh
+####### > Checking if the host Linux version is compatible...4.15.0-39-generic on x86_64.
+####### > setting up SRContainer cgroups...blkio...####### > setting up rlimit...successfully set up cgroup controls.
+####### > child process remounting root with MS_PRIVATE...successfull remount.
+####### > a bind mount is done on a newly created tmp directory...####### > changing root with pivot_root...inner mount done.
+####### > unmounting old_root /oldroot.yzcOls...successfully setup child mounts.
+####### > attempting a new user namespace...setting UID/GID mapping /proc/19124/uid_map...setting UID/GID mapping /proc/19124/gid_map...all done successfully.
+####### > switching to UID 1 / GID 1...setting up usernamespace done.
+daemon@ktagoe:/$ ls
+bin  boot  dev	etc  home  lib	lib64  media  mnt  opt	proc  root  run  sbin  srv  sys  test5	test5.c  tmp  usr  var
+daemon@ktagoe:/$ ./test5 10
+Hello World!
+ERROR: Unable to create the child process.
+daemon@ktagoe:/$ exit
+exit
+####### > cleaning cgroups...cgroup resources free'ed successfully.
+root@bd4cdf764553:/home# 
