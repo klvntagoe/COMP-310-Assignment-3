@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     pid_t child_pid = 0;
     int last_optind = 0;
     bool found_cflag = false;
-		//int indexToWrite = 1;
+		int indexToWrite = 1;
 
 		struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
 		cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
@@ -112,101 +112,101 @@ int main(int argc, char **argv)
                 return EXIT_FAILURE;
             }
             break;
-				// case 'C':
-				//
-				// 		for (int i = 0; i < 3; i++){
-				//
-				// 			cpu_group->settings[i] = malloc(sizeof(struct cgroup_setting));
-				//
-				// 		}
-				//
-				// 		strcpy(cpu_group->control, CGRP_CPU_CONTROL);
-				//
-				// 		strcpy(cpu_group->settings[0]->name, "cpu.shares");
-				// 		strcpy(cpu_group->settings[0]->value, optarg);
-				//
-				// 		cpu_group->settings[1] = &self_to_task;
-				// 		cpu_group->settings[2] = NULL;
-				//
-				// 		cgroups[indexToWrite] = cpu_group;
-				// 		indexToWrite++;
-				// 		cgroups[indexToWrite] = NULL;
-				//
-				// 		break;
-				//
-				// case 's':
-				//
-				// 		for (int i = 0; i < 4; i++){
-				//
-				// 			cpuset_group->settings[i] = malloc(sizeof(struct cgroup_setting));
-				//
-				// 		}
-				//
-				// 		strcpy(cpuset_group->control, CGRP_CPU_SET_CONTROL);
-				//
-				// 		strcpy(cpuset_group->settings[0]->name, "cpuset.cpus");
-				// 		strcpy(cpuset_group->settings[0]->value, optarg);
-				//
-				// 		strcpy(cpuset_group->settings[1]->name, "cpuset.mems");
-				// 		strcpy(cpuset_group->settings[1]->value, "0-1");
-				//
-				// 		cpuset_group->settings[2] = &self_to_task;
-				// 		cpuset_group->settings[3] = NULL;
-				//
-				// 		cgroups[indexToWrite] = cpu_group;
-				// 		indexToWrite++;
-				// 		cgroups[indexToWrite] = NULL;
-				//
-				// 		break;
-				//
-				// case 'p':
-				//
-				// 		for (int i = 0; i < 3; i++){
-				//
-				// 			pid_group->settings[i] = malloc(sizeof(struct cgroup_setting));
-				//
-				// 		}
-				//
-				// 		strcpy(pid_group->control, CGRP_PIDS_CONTROL);
-				//
-				// 		strcpy(pid_group->settings[0]->name, "pids.max");
-				// 		strcpy(pid_group->settings[0]->value, optarg);
-				//
-				// 		pid_group->settings[1] = &self_to_task;
-				// 		pid_group->settings[2] = NULL;
-				//
-				// 		cgroups[indexToWrite] = cpu_group;
-				// 		indexToWrite++;
-				// 		cgroups[indexToWrite] = NULL;
-				//
-				// 		break;
-				//
-				// case 'M':
-				//
-				// 		for (int i = 0; i < 3; i++){
-				//
-				// 			memory_group->settings[i] = malloc(sizeof(struct cgroup_setting));
-				//
-				// 		}
-				//
-				// 		strcpy(memory_group->control, CGRP_MEMORY_CONTROL);
-				//
-				// 		strcpy(memory_group->settings[0]->name, "memory.limit_in_bytes");
-				// 		strcpy(memory_group->settings[0]->value, optarg);
-				//
-				// 		memory_group->settings[1] = &self_to_task;
-				// 		memory_group->settings[2] = NULL;
-				//
-				// 		cgroups[indexToWrite] = cpu_group;
-				// 		indexToWrite++;
-				// 		cgroups[indexToWrite] = NULL;
-				//
-				// 		break;
-				//
-				// case 'r': //different
-				//
-				// case 'w': //different
-				//
+				case 'C':
+
+						for (int i = 0; i < 3; i++){
+
+							cpu_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(cpu_group->control, CGRP_CPU_CONTROL);
+
+						strcpy(cpu_group->settings[0]->name, "cpu.shares");
+						strcpy(cpu_group->settings[0]->value, optarg);
+
+						cpu_group->settings[1] = &self_to_task;
+						cpu_group->settings[2] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 's':
+
+						for (int i = 0; i < 4; i++){
+
+							cpuset_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(cpuset_group->control, CGRP_CPU_SET_CONTROL);
+
+						strcpy(cpuset_group->settings[0]->name, "cpuset.cpus");
+						strcpy(cpuset_group->settings[0]->value, optarg);
+
+						strcpy(cpuset_group->settings[1]->name, "cpuset.mems");
+						strcpy(cpuset_group->settings[1]->value, "0-1");
+
+						cpuset_group->settings[2] = &self_to_task;
+						cpuset_group->settings[3] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 'p':
+
+						for (int i = 0; i < 3; i++){
+
+							pid_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(pid_group->control, CGRP_PIDS_CONTROL);
+
+						strcpy(pid_group->settings[0]->name, "pids.max");
+						strcpy(pid_group->settings[0]->value, optarg);
+
+						pid_group->settings[1] = &self_to_task;
+						pid_group->settings[2] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 'M':
+
+						for (int i = 0; i < 3; i++){
+
+							memory_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+
+						}
+
+						strcpy(memory_group->control, CGRP_MEMORY_CONTROL);
+
+						strcpy(memory_group->settings[0]->name, "memory.limit_in_bytes");
+						strcpy(memory_group->settings[0]->value, optarg);
+
+						memory_group->settings[1] = &self_to_task;
+						memory_group->settings[2] = NULL;
+
+						cgroups[indexToWrite] = cpu_group;
+						indexToWrite++;
+						cgroups[indexToWrite] = NULL;
+
+						break;
+
+				case 'r': //different
+
+				case 'w': //different
+
 				case 'H':
 
 						config.hostname = optarg;
