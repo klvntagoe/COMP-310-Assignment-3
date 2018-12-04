@@ -37,7 +37,7 @@ EXPERIMENT 3:
 
 
 
-EXPERIMENT 4:
+EXPERIMENT 4: PID NAMESPACE SWITCH
 - Command Line 1:
 	root@45166eddf0b6:/home# sudo unshare --mount-proc=/proc -fp /bin/sh
 	# ls
@@ -123,7 +123,7 @@ EXPERIMENT 4:
 
 
 
-EXPERIMENT 5:
+EXPERIMENT 5: USER NAMESPACE SWITCH
 - Command Line 1:
 	PRIVILEGES CHECK IN SHELL 1
 	root@45166eddf0b6:/home# unshare -fpU --mount-proc=/proc /bin/bash
@@ -153,7 +153,7 @@ EXPERIMENT 5:
 
 
 
-EXPERIMENT 6:
+EXPERIMENT 6: UTS NAMESPACE SWITCH
 - Command Line:
 	HOSTNAME SWITCH IN CHILD NAMESPACE
 	root@45166eddf0b6:/home# sudo unshare -fpu --mount-proc=/proc /bin/bash
@@ -184,7 +184,7 @@ EXPERIMENT 6:
 
 
 
-EXPERIMENT 7:
+EXPERIMENT 7: INSTALLING A FILE SYSTEM
 - Command Line:
 	root@45166eddf0b6:/home# debootstrap jessie jrootfs
 	(Installation occurs)
@@ -227,7 +227,7 @@ EXPERIMENT 7:
 
 
 
-EXPERIMENT 8
+EXPERIMENT 8: MEMORY RESTRICTIONS
 - Command Line:
 	root@da8680220709:/home# mount --rbind /sys/fs/cgroup jrootfs/sys/fs/cgroup
 	root@da8680220709:/home# cd jrootfs
@@ -301,7 +301,7 @@ EXPERIMENT 8: (Repeated)
 	root@f181296c5acd:/home# 
 
 
-EXPERIMENT 9:
+EXPERIMENT 9: CPU RESTRICTIONS
 - Command Line:
 
 	CONTAINER 1
@@ -335,7 +335,7 @@ EXPERIMENT 9:
 	19035
 	19063
 
-EXPERIMENT 10
+EXPERIMENT 10: BLOCK IO
 - Commands Line:
 
 	FOR READ AND WRITE:
