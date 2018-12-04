@@ -75,19 +75,19 @@ int main(int argc, char **argv)
     pid_t child_pid = 0;
     int last_optind = 0;
     bool found_cflag = false;
-		int indexToWrite = 1;
+	int indexToWrite = 1;
 
-		struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
-		cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+	struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
+	cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
-		struct cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
-		cpuset_group->settings = malloc(4*sizeof(struct cgroup_setting*));
+	struct cgroups_control *cpuset_group = malloc(sizeof(struct cgroups_control));
+	cpuset_group->settings = malloc(4*sizeof(struct cgroup_setting*));
 
-		struct cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
-		pid_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+	struct cgroups_control *pid_group = malloc(sizeof(struct cgroups_control));
+	pid_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
-		struct cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
-		memory_group->settings = malloc(3*sizeof(struct cgroup_setting*));
+	struct cgroups_control *memory_group = malloc(sizeof(struct cgroups_control));
+	memory_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
     while ((option = getopt(argc, argv, "c:m:u:C:s:p:M:r:w:H:")))
     {
@@ -113,26 +113,24 @@ int main(int argc, char **argv)
             }
             break;
 				case 'C':
+					for (int i = 0; i < 3; i++){
+						cpu_group->settings[i] = malloc(sizeof(struct cgroup_setting));
 
-						for (int i = 0; i < 3; i++){
+					}
 
-							cpu_group->settings[i] = malloc(sizeof(struct cgroup_setting));
+					strcpy(cpu_group->control, CGRP_CPU_CONTROL);
 
-						}
+					strcpy(cpu_group->settings[0]->name, "cpu.shares");
+					strcpy(cpu_group->settings[0]->value, optarg);
 
-						strcpy(cpu_group->control, CGRP_CPU_CONTROL);
+					cpu_group->settings[1] = &self_to_task;
+					cpu_group->settings[2] = NULL;
 
-						strcpy(cpu_group->settings[0]->name, "cpu.shares");
-						strcpy(cpu_group->settings[0]->value, optarg);
+					cgroups[indexToWrite] = cpu_group;
+					indexToWrite++;
+					cgroups[indexToWrite] = NULL;
 
-						cpu_group->settings[1] = &self_to_task;
-						cpu_group->settings[2] = NULL;
-
-						cgroups[indexToWrite] = cpu_group;
-						indexToWrite++;
-						cgroups[indexToWrite] = NULL;
-
-						break;
+					break;
 
 				case 's':
 
@@ -209,8 +207,8 @@ int main(int argc, char **argv)
 
 				case 'H':
 
-						config.hostname = optarg;
-						break;
+					config.hostname = optarg;
+					break;
 
         default:
             cleanup_stuff(argv, sockets);
