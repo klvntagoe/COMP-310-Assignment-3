@@ -334,3 +334,15 @@ EXPERIMENT 9:
 	root@f181296c5acd:/home/jrootfs/sys/fs/cgroup/cpuset/CPURestrictor# cat tasks
 	19035
 	19063
+
+EXPERIMENT 10
+- Commands Line:
+
+	FOR READ AND WRITE:
+	root@883402eea466:/# sudo unshare -fpu --mount-proc=/proc /bin/bash
+	root@883402eea466:/# cd jrootfs/      
+	root@883402eea466:/jrootfs# chroot .
+	root@883402eea466:/# echo "8:0 10M" > /sys/fs/cgroup/blkio/test/blkio.throttle.read_bps_device
+	root@883402eea466:/# echo "8:0 10M" > /sys/fs/cgroup/blkio/test/blkio.throttle.write_bps_device
+	
+
