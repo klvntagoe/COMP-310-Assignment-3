@@ -75,8 +75,11 @@ int main(int argc, char **argv)
     pid_t child_pid = 0;
     int last_optind = 0;
     bool found_cflag = false;
-	int indexToWrite = 1;
 
+		//Initializes a variable to track the end of the cgroups array
+		int indexToWrite = 1;
+
+	//Initializes the structs to be filled in based on the flags
 	struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
 	cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
 
@@ -118,6 +121,7 @@ int main(int argc, char **argv)
 
 					}
 
+					//Sets the fields within the struct
 					strcpy(cpu_group->control, CGRP_CPU_CONTROL);
 
 					strcpy(cpu_group->settings[0]->name, "cpu.shares");
@@ -126,7 +130,10 @@ int main(int argc, char **argv)
 					cpu_group->settings[1] = &self_to_task;
 					cpu_group->settings[2] = NULL;
 
+					//Assigns the struct to the cgroups array
 					cgroups[indexToWrite] = cpu_group;
+
+					//Writes a NULL to the end of the array
 					indexToWrite++;
 					cgroups[indexToWrite] = NULL;
 
@@ -140,6 +147,7 @@ int main(int argc, char **argv)
 
 						}
 
+						//Sets the fields within the struct
 						strcpy(cpuset_group->control, CGRP_CPU_SET_CONTROL);
 
 						strcpy(cpuset_group->settings[0]->name, "cpuset.cpus");
@@ -151,7 +159,10 @@ int main(int argc, char **argv)
 						cpuset_group->settings[2] = &self_to_task;
 						cpuset_group->settings[3] = NULL;
 
+						//Assigns the struct to the cgroups array
 						cgroups[indexToWrite] = cpu_group;
+
+						//Writes a NULL to the end of the array
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
@@ -165,6 +176,7 @@ int main(int argc, char **argv)
 
 						}
 
+						//Sets the fields within the struct
 						strcpy(pid_group->control, CGRP_PIDS_CONTROL);
 
 						strcpy(pid_group->settings[0]->name, "pids.max");
@@ -173,7 +185,10 @@ int main(int argc, char **argv)
 						pid_group->settings[1] = &self_to_task;
 						pid_group->settings[2] = NULL;
 
+						//Assigns the struct to the cgroups array
 						cgroups[indexToWrite] = cpu_group;
+
+						//Writes a NULL to the end of the array
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
@@ -187,6 +202,7 @@ int main(int argc, char **argv)
 
 						}
 
+						//Sets the fields within the struct
 						strcpy(memory_group->control, CGRP_MEMORY_CONTROL);
 
 						strcpy(memory_group->settings[0]->name, "memory.limit_in_bytes");
@@ -195,7 +211,10 @@ int main(int argc, char **argv)
 						memory_group->settings[1] = &self_to_task;
 						memory_group->settings[2] = NULL;
 
+						//Assigns the struct to the cgroups array
 						cgroups[indexToWrite] = cpu_group;
+
+						//Writes a NULL to the end of the array
 						indexToWrite++;
 						cgroups[indexToWrite] = NULL;
 
