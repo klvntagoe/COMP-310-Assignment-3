@@ -189,7 +189,7 @@ int main(int argc, char **argv)
 						pid_group->settings[2] = NULL;
 
 						//Assigns the struct to the cgroups array
-						cgroups[indexToWrite] = cpu_group;
+						cgroups[indexToWrite] = pid_group;
 
 						//Writes a NULL to the end of the array
 						indexToWrite++;
@@ -215,7 +215,7 @@ int main(int argc, char **argv)
 						memory_group->settings[2] = NULL;
 
 						//Assigns the struct to the cgroups array
-						cgroups[indexToWrite] = cpu_group;
+						cgroups[indexToWrite] = memory_group;
 
 						//Writes a NULL to the end of the array
 						indexToWrite++;
