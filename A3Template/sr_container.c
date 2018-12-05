@@ -160,7 +160,7 @@ int main(int argc, char **argv)
 						cpuset_group->settings[3] = NULL;
 
 						//Assigns the struct to the cgroups array
-						cgroups[indexToWrite] = cpu_group;
+						cgroups[indexToWrite] = cpuset_group;
 
 						//Writes a NULL to the end of the array
 						indexToWrite++;
