@@ -222,7 +222,39 @@ int main(int argc, char **argv)
 
 				case 'r': //different
 
+						int i = 2;
+
+						//Gets the end of the blkio settings array
+						while (cgroups[0]->settings[i] != NULL){
+							i++;
+						}
+
+						cgroups[0]->settings[i] = (struct cgroup_setting*) malloc(sizeof(struct cgroup_setting));
+
+						strcpy(cgroups[0]->settings[i]->name, "blkio.throttle.read_bps_device");
+						strcpy(cgroups[0]->settings[i]->value, optarg);
+
+						i++;
+						cgroups[0]->settings[i] = NULL;
+						break;
+
 				case 'w': //different
+
+						int i = 2;
+
+						//Gets the end of the blkio settings array
+						while (cgroups[0]->settings[i] != NULL){
+							i++;
+						}
+
+						cgroups[0]->settings[i] = (struct cgroup_setting*) malloc(sizeof(struct cgroup_setting));
+
+						strcpy(cgroups[0]->settings[i]->name, "blkio.throttle.write_bps_device");
+						strcpy(cgroups[0]->settings[i]->value, optarg);
+
+						i++;
+						cgroups[0]->settings[i] = NULL;
+						break;
 
 				case 'H':
 
