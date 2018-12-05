@@ -79,6 +79,9 @@ int main(int argc, char **argv)
 		//Initializes a variable to track the end of the cgroups array
 		int indexToWrite = 1;
 
+		//Initializes a variable to track the write index for blkio
+		int blkioIndex = 2;
+
 	//Initializes the structs to be filled in based on the flags
 	struct cgroups_control *cpu_group = malloc(sizeof(struct cgroups_control));
 	cpu_group->settings = malloc(3*sizeof(struct cgroup_setting*));
@@ -222,38 +225,34 @@ int main(int argc, char **argv)
 
 				case 'r': //different
 
-						int i = 2;
-
 						//Gets the end of the blkio settings array
-						while (cgroups[0]->settings[i] != NULL){
-							i++;
+						while (cgroups[0]->settings[blkioIndex] != NULL){
+							blkioIndex++;
 						}
 
-						cgroups[0]->settings[i] = (struct cgroup_setting*) malloc(sizeof(struct cgroup_setting));
+						cgroups[0]->settings[blkioIndex] = (struct cgroup_setting*) malloc(sizeof(struct cgroup_setting));
 
-						strcpy(cgroups[0]->settings[i]->name, "blkio.throttle.read_bps_device");
-						strcpy(cgroups[0]->settings[i]->value, optarg);
+						strcpy(cgroups[0]->settings[blkioIndex]->name, "blkio.throttle.read_bps_device");
+						strcpy(cgroups[0]->settings[blkioIndex]->value, optarg);
 
-						i++;
-						cgroups[0]->settings[i] = NULL;
+						blkioIndex++;
+						cgroups[0]->settings[blkioIndex] = NULL;
 						break;
 
 				case 'w': //different
 
-						int i = 2;
-
 						//Gets the end of the blkio settings array
-						while (cgroups[0]->settings[i] != NULL){
-							i++;
+						while (cgroups[0]->settings[blkioIndex] != NULL){
+							blkioIndex++;
 						}
 
-						cgroups[0]->settings[i] = (struct cgroup_setting*) malloc(sizeof(struct cgroup_setting));
+						cgroups[0]->settings[blkioIndex] = (struct cgroup_setting*) malloc(sizeof(struct cgroup_setting));
 
-						strcpy(cgroups[0]->settings[i]->name, "blkio.throttle.write_bps_device");
-						strcpy(cgroups[0]->settings[i]->value, optarg);
+						strcpy(cgroups[0]->settings[blkioIndex]->name, "blkio.throttle.write_bps_device");
+						strcpy(cgroups[0]->settings[blkioIndex]->value, optarg);
 
-						i++;
-						cgroups[0]->settings[i] = NULL;
+						blkioIndex++;
+						cgroups[0]->settings[blkioIndex] = NULL;
 						break;
 
 				case 'H':
